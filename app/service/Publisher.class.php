@@ -105,11 +105,11 @@ class Publisher extends Base {
     $password = $publisher_model->encrypt( $username, $password );
     $pdo = $this->get_read_pdo();
     $sql = "SELECT `id`,`publisher_name`
-            FROM `t_admin`
-            WHERE `username`=:username AND `password`=:password AND `status`=" . PublisherModel::STATUS_ON;
+            FROM `t_publisher`
+            WHERE `account`=:account AND `password`=:password AND `status`=" . PublisherModel::STATUS_ON;
     $state = $pdo->prepare($sql);
     $state->execute(array(
-      ':username' => $username,
+      ':account' => $username,
       ':password' => $password,
     ));
     $user = $state->fetch(PDO::FETCH_ASSOC);

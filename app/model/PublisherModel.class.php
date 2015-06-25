@@ -37,7 +37,7 @@ class PublisherModel extends Base {
     }
   }
 
-  public function update() {
+  public function update(array $attr = null) {
     $attr = $this->attributes;
     $attr['create_time'] = date("Y-m-d H:i:s");
     $attr['publisher_id'] = $_SESSION['publisher_id'];

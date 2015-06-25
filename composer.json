@@ -1,19 +1,22 @@
 {
-    "name": "dianjoy/admin-publisher-api",
-    "description": "admin panel for publisher",
-    "license": "GPL",
-    "authors": [
-        {
-            "name": "Meathill",
-            "email": "lujia.zhai@dianjoy.com"
-        }
-    ],
-    "require": {
-        "noahbuscher/macaw": "dev-master",
-        "dianjoy/lemon-grass": "dev-master",
-        "phpmailer/phpmailer": "~5.2",
-        "tufanbarisyildirim/php-apk-parser": "dev-master",
-        "dianjoy/lemon-grass": "dev-master",
-        "rodneyrehm/plist": "dev-master"
+  "name": "dianjoy/admin-publisher-api",
+  "description": "admin panel for publisher",
+  "license": "GPL",
+  "authors": [
+    {
+      "name": "Meathill",
+      "email": "lujia.zhai@dianjoy.com"
     }
+  ],
+  "require": {
+    "noahbuscher/macaw": "dev-master",
+    "phpmailer/phpmailer": "~5.2",
+    "dianjoy/lemon-grass": "dev-master",
+    "rodneyrehm/plist": "dev-master"
+  },
+  "autoload": {
+    "classmap": [
+      "app"
+    ]
+  }
 }
