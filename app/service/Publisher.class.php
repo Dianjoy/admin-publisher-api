@@ -40,16 +40,22 @@ class Publisher extends Base {
     $state->execute(array(':id' => $_SESSION['publisher_id']));
     $result = $state->fetch(PDO::FETCH_ASSOC);
 
-    $date = date("d");
-    if ($date < 16) {
-      $start = date("Y-m-d", mktime(0, 0, 0, date("m") - 1, 1, date("Y")));
-      $end = date("Y-m-d", mktime(0, 0, 0, date("m"), 1, date("Y")));
-    } else {
-      $start = date("Y-m-d", mktime(0, 0, 0, date("m") - 1, 16, date("Y")));
-      $end = date("Y-m-d", mktime(0, 0, 0, date("m"), 16, date("Y")));
-    }
-    $rmb = self::get_income_in_interval($start, $end);
+
+    $start = date("Y-m-d", mktime(0, 0, 0, date("m") - 1, 1, date("Y")));
+    $end = date("Y-m-d", mktime(0, 0, 0, date("m"), 1, date("Y")));
+    $sql = "select sum(a.out_rmb*out_num) from t_pub_log as a join t_pub_info as b on a.pub_id=b.id where quote_date>=:start and quote_date<:end and publisher_id=:id";
+    $DB = $this->get_read_pdo();
+    $state = $DB->prepare($sql);
+    $state->execute(array(':id' => $_SESSION['publisher_id'], ':start' => $start, ':end' => $end));
+    $rmb = $state->fetch(PDO::FETCH_COLUMN);
+
     $result['rmb'] = $result['rmb_in'] + $rmb - $result['rmb_out'];
+
+    $tax = 0;
+    if ($result['publisher_type'] == PublisherModel::TYPE_PERSONAL) {
+      $tax = self::tax($result['rmb'] / 100);
+    }
+    $result['after_tax'] = $result['rmb'] - $tax * 100;
 
     return $result;
   }
@@ -119,5 +125,19 @@ class Publisher extends Base {
     $_SESSION['publisher_name'] = $user['publisher_name'];
 
     return true;
+  }
+
+  public function tax($rmb) {
+    $tax = 0;
+    if ($rmb > 78125) {
+      $tax = $rmb * 0.32 - 7000;
+    } elseif ($rmb > 31250) {
+      $tax = $rmb * 0.24 - 2000;
+    } elseif ($rmb > 4000) {
+      $tax = $rmb * 0.16;
+    } elseif ($rmb > 800) {
+      $tax = ($rmb - 800) * 0.2;
+    }
+    return $tax;
   }
 }

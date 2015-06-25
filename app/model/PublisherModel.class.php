@@ -19,6 +19,8 @@ class PublisherModel extends Base {
   const EDIT_NOT_VERIFIED = 0;
   const APPLYING = 0;
   const STATUS_ON = 1;
+  const TYPE_PERSONAL = 1;
+  const TYPE_COMPANY = 2;
   static $T_EDIT = 't_publisher_edit';
   static $T_APPLY = 't_publisher_apply';
   static $T_INFO = 't_publisher';
@@ -65,6 +67,7 @@ class PublisherModel extends Base {
       'rmb' => $rmb,
       'status' => self::APPLYING,
       'is_pay' => $rmb,
+      'tax' => (int)($publisher_service->tax($rmb / 100) * 100),
     );
     $DB_write = $this->get_write_pdo();
     if (!SQLHelper::insert($DB_write, self::$T_APPLY, $attr)) {
