@@ -30,6 +30,12 @@ class PublisherModel extends Base {
     2 => '上游后台',
     3 => '截图',
   );
+  static $APPLY_STATUS = array(
+    '-1' => '申请失败',
+    '0' =>' 申请中',
+    '1' => '已结款',
+    '2' => '申请成功，待结款'
+  );
 
   public function __construct($attr = null) {
     if ($attr) {

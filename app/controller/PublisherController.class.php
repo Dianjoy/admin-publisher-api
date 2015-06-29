@@ -105,6 +105,9 @@ class PublisherController extends BaseController {
       'code' => 0,
       'msg' => 'ok',
       'list' => $list,
+      'options' => array(
+        'apply_status' => PublisherModel::$APPLY_STATUS,
+      ),
     ));
   }
 
