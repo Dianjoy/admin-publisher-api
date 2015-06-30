@@ -35,7 +35,7 @@ Macaw::post(BASE . 'apply/', 'publisher\controller\PublisherController@apply');
 
 Macaw::get(BASE . 'apply/', 'publisher\controller\PublisherController@get_apply');
 
-Macaw::patch(BASE . 'password/', 'publisher\controller\PublisherController@update_password');
+Macaw::post(BASE . 'password/', 'publisher\controller\PublisherController@update_password');
 
 Macaw::post(BASE . 'create/', 'publisher\controller\PublisherController@create');
 

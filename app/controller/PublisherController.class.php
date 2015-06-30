@@ -44,6 +44,7 @@ class PublisherController extends BaseController {
   }
 
   public function get_info() {
+    require_once dirname(__FILE__) . '/../static/province.php';
     $publisher_service = new Publisher();
     $publisher = $publisher_service->get_info();
 
@@ -51,6 +52,10 @@ class PublisherController extends BaseController {
       'code' => 0,
       'msg' => 'ok',
       'publisher' => $publisher,
+      'options' => [
+        'province' => $PROVINCE,
+        'cities' => $CITY,
+      ]
     ));
   }
 
