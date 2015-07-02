@@ -33,7 +33,7 @@ class Publisher extends Base {
   }
 
   public function get_info() {
-    $sql = "select publisher_name,comment,telephone,qq,rmb_in,rmb_out,user_name,bank_name,bank_address,card_number,province,city,identity,publisher_type,business_license,identity_pic,identity_pic_back
+    $sql = "select publisher_name,comment,telephone,qq,rmb_in,rmb_out,user_name,bank_name,bank_address,card_number,province,city,identity,publisher_type,business_license,identity_pic,identity_pic_back,account
     from t_publisher where id=:id";
     $DB = $this->get_read_pdo();
     $state = $DB->prepare($sql);
@@ -56,6 +56,16 @@ class Publisher extends Base {
       $tax = self::tax($result['rmb'] / 100);
     }
     $result['after_tax'] = $result['rmb'] - $tax * 100;
+
+    $result['applying'] = (boolean)self::get_apply();
+    
+    $result['whole_info'] = !empty($result['user_name']) && !empty($result['qq']) && !empty($result['mobile']) && !empty($result['bank_name']) && !empty($result['bank_address']) && !empty($result['province']) && !empty($result['city']) && !empty($result['card_number']) && (($result['publisher_type'] == 2 && !empty($result['telephone']) && !empty($result['company_name']) && !empty($result['business_license'])) || ($result['publisher_type'] == 1 && !empty($result['identity']) && !empty($result['identity_pic']) && !empty($result['identity_pic_back'])));
+
+    $sql = "select telephone,qq,user_name,back_name,bank_address,card_number,province,city,`identity`,business_license,identity_pic,identity_pic_back,comment,create_time from t_publisher_edit where publisher_id=:id and status=" . PublisherModel::EDIT_NOT_VERIFIED . " order by create_time desc limit 1";
+    $DB = $this->get_read_pdo();
+    $state = $DB->prepare($sql);
+    $state->execute(array(':id' => $_SESSION['publisher_id']));
+    $result['editing'] = $state->fetch(PDO::FETCH_ASSOC);
 
     return $result;
   }
