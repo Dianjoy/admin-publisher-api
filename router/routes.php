@@ -29,6 +29,8 @@ Macaw::get(BASE . 'info/', 'publisher\controller\PublisherController@get_info');
 
 Macaw::post(BASE . 'info/', 'publisher\controller\PublisherController@update');
 
+Macaw::delete(BASE . 'info/', 'publisher\controller\PublisherController@delete_info_apply');
+
 Macaw::options(BASE . 'apply/', 'diy\controller\BaseController@on_options');
 
 Macaw::post(BASE . 'apply/', 'publisher\controller\PublisherController@apply');

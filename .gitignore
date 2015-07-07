@@ -3,3 +3,6 @@
 
 # repo
 /vendor/
+
+# upload
+/public/upload

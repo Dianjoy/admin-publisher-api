@@ -53,7 +53,7 @@ class PublisherController extends BaseController {
       'msg' => 'ok',
       'publisher' => $publisher,
       'options' => [
-        'province' => $PROVINCE,
+        'provinces' => $PROVINCE,
         'cities' => $CITY,
       ]
     ));
@@ -64,6 +64,10 @@ class PublisherController extends BaseController {
 
     $publisher_model = new PublisherModel($attr);
 
+    if ($publisher_model->has_modified()) {
+      $this->exit_with_error(10, '您的上一次修改还未通过，不能再次申请', 403);
+    }
+
     try {
       $attr = $publisher_model->update();
     } catch (Exception $e) {
@@ -72,8 +76,19 @@ class PublisherController extends BaseController {
 
     $this->output(array(
       'code' => 0,
-      'msg' => '申请修改成功',
+      'msg' => '申请发送成功，请等待管理员审批。',
       'publisher' => $attr,
+    ));
+  }
+
+  public function delete_info_apply() {
+    $model = new PublisherModel();
+
+    $model->remove_apply();
+
+    $this->output(array(
+      'code' => 0,
+      'msg' => '撤销成功',
     ));
   }
 
