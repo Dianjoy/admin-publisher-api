@@ -29,11 +29,17 @@ Macaw::get(BASE . 'info/', 'publisher\controller\PublisherController@get_info');
 
 Macaw::post(BASE . 'info/', 'publisher\controller\PublisherController@update');
 
+Macaw::delete(BASE . 'info/', 'publisher\controller\PublisherController@delete_info_apply');
+
 Macaw::options(BASE . 'apply/', 'diy\controller\BaseController@on_options');
 
 Macaw::post(BASE . 'apply/', 'publisher\controller\PublisherController@apply');
 
 Macaw::get(BASE . 'apply/', 'publisher\controller\PublisherController@get_apply');
+
+Macaw::options(BASE . 'apply/(:any)', 'diy\controller\BaseController@on_options');
+
+Macaw::delete(BASE . 'apply/(:any)', 'publisher\controller\PublisherController@delete_apply');
 
 Macaw::post(BASE . 'password/', 'publisher\controller\PublisherController@update_password');
 

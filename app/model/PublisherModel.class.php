@@ -25,29 +25,37 @@ class PublisherModel extends Base {
   static $T_APPLY = 't_publisher_apply';
   static $T_INFO = 't_publisher';
   static $FIELD_CREATE = array('account', 'password', 'qq', 'mobile', 'publisher_name');
+  static $FIELDS_EDIT = ['telephone', 'qq', 'user_name', 'bank_name', 'bank_adress',
+    'card_number', 'province', 'city', 'identity', 'business_license', 'identity_pic',
+    'identity_pic_back', 'comment', 'publisher_name', 'publisher_type', 'publisher_id'];
   static $OUT_CYCLE = array(
     1 => '点乐渠道后台',
     2 => '上游后台',
     3 => '截图',
   );
   static $APPLY_STATUS = array(
+    '-2' => '撤销',
     '-1' => '申请失败',
     '0' =>' 申请中',
     '1' => '已结款',
-    '2' => '申请成功，待结款'
+    '2' => '申请成功，待结款',
   );
 
   public function __construct($attr = null) {
-    if ($attr) {
-      parent::__construct($attr);
-    }
+    $this->idAttribute = 'publisher_id';
+    $attr = is_array($attr) ? $attr : [];
+    $attr['publisher_id'] = $_SESSION['publisher_id'];
+    parent::__construct($attr);
   }
 
   public function update(array $attr = null) {
     $attr = $this->attributes;
+    // 有一些属性在更新时需要过滤掉
+    $attr = Utils::array_pick($attr, self::$FIELDS_EDIT);
+
     $attr['create_time'] = date("Y-m-d H:i:s");
-    $attr['publisher_id'] = $_SESSION['publisher_id'];
     $attr['is_verify'] = self::EDIT_NOT_VERIFIED;
+
     $DB_write = $this->get_write_pdo();
     if (!SQLHelper::insert($DB_write, self::$T_EDIT, $attr)) {
       throw new Exception('申请修改失败', 100);
@@ -56,9 +64,10 @@ class PublisherModel extends Base {
     return $attr;
   }
 
-  public function apply($rmb) {
+  public function apply() {
     $publisher_service = new Publisher();
     $info = $publisher_service->get_info();
+    $rmb = (int)$_REQUEST['apply'] * 100;
     if ($info['rmb'] < $rmb) {
       throw new Exception('申请金额超过可提现余额', 101);
     }
@@ -111,6 +120,16 @@ class PublisherModel extends Base {
     }
 
     return $attr;
+  }
+
+  public function has_modified() {
+    $service = new Publisher();
+    return $service->info_apply_exist($this->id);
+  }
+
+  public function remove_info_apply() {
+    $service = new Publisher();
+    return $service->remove_info_apply($this->id);
   }
 
   /**

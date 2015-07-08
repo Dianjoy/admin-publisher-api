@@ -57,11 +57,18 @@ class Publisher extends Base {
     }
     $result['after_tax'] = $result['rmb'] - $tax * 100;
 
-    $result['applying'] = (boolean)self::get_apply();
+    $result['applying'] = (boolean)$this->get_apply();
     
     $result['whole_info'] = !empty($result['user_name']) && !empty($result['qq']) && !empty($result['mobile']) && !empty($result['bank_name']) && !empty($result['bank_address']) && !empty($result['province']) && !empty($result['city']) && !empty($result['card_number']) && (($result['publisher_type'] == 2 && !empty($result['telephone']) && !empty($result['company_name']) && !empty($result['business_license'])) || ($result['publisher_type'] == 1 && !empty($result['identity']) && !empty($result['identity_pic']) && !empty($result['identity_pic_back'])));
 
-    $sql = "select telephone,qq,user_name,back_name,bank_address,card_number,province,city,`identity`,business_license,identity_pic,identity_pic_back,comment,create_time from t_publisher_edit where publisher_id=:id and status=" . PublisherModel::EDIT_NOT_VERIFIED . " order by create_time desc limit 1";
+    $sql = "SELECT `telephone`,`qq`,`user_name`,`bank_name`,`bank_address`,
+              `card_number`,`province`,`city`,`identity`,`business_license`,
+              `identity_pic`,`identity_pic_back`,`comment`,`create_time`,
+              `publisher_name`,`publisher_type`
+            FROM `t_publisher_edit`
+            WHERE `publisher_id`=:id AND `is_verify`=" . PublisherModel::EDIT_NOT_VERIFIED . "
+            ORDER BY `create_time` DESC
+            LIMIT 1";
     $DB = $this->get_read_pdo();
     $state = $DB->prepare($sql);
     $state->execute(array(':id' => $_SESSION['publisher_id']));
@@ -87,7 +94,10 @@ class Publisher extends Base {
   }
 
   public function get_applies() {
-    $sql = "select apply_time,rmb,status from t_publisher_apply where publisher_id=:id";
+    $sql = "SELECT `id`,`apply_time`,`rmb`,`status`
+            FROM `t_publisher_apply`
+            WHERE `publisher_id`=:id AND `status`>-2
+            ORDER BY `apply_time` DESC";
     $DB = $this->get_read_pdo();
     $state = $DB->prepare($sql);
     $state->execute(array(':id' => $_SESSION['publisher_id']));
@@ -149,5 +159,41 @@ class Publisher extends Base {
       $tax = ($rmb - 800) * 0.2;
     }
     return $tax;
+  }
+
+  public function info_apply_exist( $id ) {
+    $sql = "SELECT 'x'
+            FROM `t_publisher_edit`
+            WHERE `publisher_id`='$id' AND `is_verify`=" . PublisherModel::EDIT_NOT_VERIFIED;
+    $DB = $this->get_read_pdo();
+    return $DB->query($sql)->fetchColumn();
+  }
+
+  public function remove_info_apply( $id ) {
+    $sql = "UPDATE `t_publisher_edit`
+            SET `is_verify`=-1
+            WHERE `publisher_id`='$id' AND `is_verify`=" . PublisherModel::EDIT_NOT_VERIFIED;
+    $DB = $this->get_write_pdo();
+    return $DB->exec($sql);
+  }
+
+  public function is_my_own_apply( $id ) {
+    $me = $_SESSION['publisher_id'];
+    $sql = "SELECT 'x'
+            FROM `t_publisher_apply`
+            WHERE `id`=:id AND `publisher_id`='$me'";
+    $DB = $this->get_read_pdo();
+    $state = $DB->prepare($sql);
+    $state->execute([':id' => $id]);
+    return $state->fetchColumn();
+  }
+
+  public function remove_apply( $id ) {
+    $sql = "UPDATE `t_publisher_apply`
+            SET `status`=-2
+            WHERE `id`=:id";
+    $DB = $this->get_write_pdo();
+    $state = $DB->prepare($sql);
+    return $state->execute([':id' => $id]);
   }
 }
