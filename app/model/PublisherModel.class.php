@@ -62,8 +62,11 @@ class PublisherModel extends Base {
     if ($info['rmb'] < $rmb) {
       throw new Exception('申请金额超过可提现余额', 101);
     }
-    if ($publisher_service->get_apply()) {
+    if ($info['applying']) {
       throw new Exception('您有等待审核的申请，暂时不能发起新申请', 102);
+    }
+    if (!$info['whole_info']) {
+      throw new Exception('信息未填全，不能提现', 107);
     }
 
     $attr = array(
