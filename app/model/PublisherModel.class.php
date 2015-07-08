@@ -34,10 +34,11 @@ class PublisherModel extends Base {
     3 => '截图',
   );
   static $APPLY_STATUS = array(
+    '-2' => '撤销',
     '-1' => '申请失败',
     '0' =>' 申请中',
     '1' => '已结款',
-    '2' => '申请成功，待结款'
+    '2' => '申请成功，待结款',
   );
 
   public function __construct($attr = null) {
@@ -63,9 +64,10 @@ class PublisherModel extends Base {
     return $attr;
   }
 
-  public function apply($rmb) {
+  public function apply() {
     $publisher_service = new Publisher();
     $info = $publisher_service->get_info();
+    $rmb = (int)$_REQUEST['apply'] * 100;
     if ($info['rmb'] < $rmb) {
       throw new Exception('申请金额超过可提现余额', 101);
     }
@@ -119,12 +121,12 @@ class PublisherModel extends Base {
 
   public function has_modified() {
     $service = new Publisher();
-    return $service->apply_exist($this->id);
+    return $service->info_apply_exist($this->id);
   }
 
-  public function remove_apply() {
+  public function remove_info_apply() {
     $service = new Publisher();
-    return $service->remove_apply($this->id);
+    return $service->remove_info_apply($this->id);
   }
 
   /**

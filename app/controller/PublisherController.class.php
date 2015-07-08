@@ -84,7 +84,7 @@ class PublisherController extends BaseController {
   public function delete_info_apply() {
     $model = new PublisherModel();
 
-    $model->remove_apply();
+    $model->remove_info_apply();
 
     $this->output(array(
       'code' => 0,
@@ -129,6 +129,25 @@ class PublisherController extends BaseController {
         'apply_status' => PublisherModel::$APPLY_STATUS,
       ),
     ));
+  }
+
+  public function delete_apply($id) {
+    $service = new Publisher();
+
+    if (!$service->is_my_own_apply($id)) {
+      $this->exit_with_error(20, '您不能操作别人的申请', 403);
+    }
+
+    $check = $service->remove_apply($id);
+
+    if ($check) {
+      $this->output([
+        'code' => 0,
+        'msg' => '撤销成功',
+      ]);
+    } else {
+      $this->exit_with_error(21, '撤销申请失败', 400);
+    }
   }
 
   public function update_password() {

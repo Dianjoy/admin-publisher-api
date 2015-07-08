@@ -37,6 +37,10 @@ Macaw::post(BASE . 'apply/', 'publisher\controller\PublisherController@apply');
 
 Macaw::get(BASE . 'apply/', 'publisher\controller\PublisherController@get_apply');
 
+Macaw::options(BASE . 'apply/(:any)', 'diy\controller\BaseController@on_options');
+
+Macaw::delete(BASE . 'apply/(:any)', 'publisher\controller\PublisherController@delete_apply');
+
 Macaw::post(BASE . 'password/', 'publisher\controller\PublisherController@update_password');
 
 Macaw::post(BASE . 'create/', 'publisher\controller\PublisherController@create');

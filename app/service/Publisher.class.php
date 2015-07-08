@@ -57,7 +57,7 @@ class Publisher extends Base {
     }
     $result['after_tax'] = $result['rmb'] - $tax * 100;
 
-    $result['applying'] = (boolean)self::get_apply();
+    $result['applying'] = (boolean)$this->get_apply();
     
     $result['whole_info'] = !empty($result['user_name']) && !empty($result['qq']) && !empty($result['mobile']) && !empty($result['bank_name']) && !empty($result['bank_address']) && !empty($result['province']) && !empty($result['city']) && !empty($result['card_number']) && (($result['publisher_type'] == 2 && !empty($result['telephone']) && !empty($result['company_name']) && !empty($result['business_license'])) || ($result['publisher_type'] == 1 && !empty($result['identity']) && !empty($result['identity_pic']) && !empty($result['identity_pic_back'])));
 
@@ -94,7 +94,10 @@ class Publisher extends Base {
   }
 
   public function get_applies() {
-    $sql = "select apply_time,rmb,status from t_publisher_apply where publisher_id=:id";
+    $sql = "SELECT `id`,`apply_time`,`rmb`,`status`
+            FROM `t_publisher_apply`
+            WHERE `publisher_id`=:id AND `status`>-2
+            ORDER BY `apply_time` DESC";
     $DB = $this->get_read_pdo();
     $state = $DB->prepare($sql);
     $state->execute(array(':id' => $_SESSION['publisher_id']));
@@ -158,7 +161,7 @@ class Publisher extends Base {
     return $tax;
   }
 
-  public function apply_exist( $id ) {
+  public function info_apply_exist( $id ) {
     $sql = "SELECT 'x'
             FROM `t_publisher_edit`
             WHERE `publisher_id`='$id' AND `is_verify`=" . PublisherModel::EDIT_NOT_VERIFIED;
@@ -166,11 +169,31 @@ class Publisher extends Base {
     return $DB->query($sql)->fetchColumn();
   }
 
-  public function remove_apply( $id ) {
+  public function remove_info_apply( $id ) {
     $sql = "UPDATE `t_publisher_edit`
             SET `is_verify`=-1
             WHERE `publisher_id`='$id' AND `is_verify`=" . PublisherModel::EDIT_NOT_VERIFIED;
     $DB = $this->get_write_pdo();
     return $DB->exec($sql);
+  }
+
+  public function is_my_own_apply( $id ) {
+    $me = $_SESSION['publisher_id'];
+    $sql = "SELECT 'x'
+            FROM `t_publisher_apply`
+            WHERE `id`=:id AND `publisher_id`='$me'";
+    $DB = $this->get_read_pdo();
+    $state = $DB->prepare($sql);
+    $state->execute([':id' => $id]);
+    return $state->fetchColumn();
+  }
+
+  public function remove_apply( $id ) {
+    $sql = "UPDATE `t_publisher_apply`
+            SET `status`=-2
+            WHERE `id`=:id";
+    $DB = $this->get_write_pdo();
+    $state = $DB->prepare($sql);
+    return $state->execute([':id' => $id]);
   }
 }
